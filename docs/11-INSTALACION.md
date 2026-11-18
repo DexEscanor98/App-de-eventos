@@ -19,6 +19,7 @@ Cree o verifique el archivo `.env` en la raíz del proyecto. Puede tomar como re
 
 ```env
 DATABASE_URL="postgresql://postgres:eventia_local_dev@localhost:5432/eventia_db?schema=public"
+DATABASE_URL_POOLED="postgresql://postgres:eventia_local_dev@localhost:5432/eventia_db?schema=public"
 AUTH_SECRET="reemplaza-por-una-clave-aleatoria-de-al-menos-32-caracteres"
 ENABLE_DEMO_LOGIN=true
 NODE_ENV="development"
@@ -79,14 +80,7 @@ npm run start
 
 ## Despliegue en Vercel
 
-1. En el proyecto de Vercel, abra **Storage/Marketplace**, instale una integración PostgreSQL (Neon es una opción directa) y vincúlela al proyecto.
-2. En **Settings → Environment Variables**, configure `AUTH_SECRET` con un valor aleatorio de al menos 32 caracteres. La integración debe proporcionar `DATABASE_URL`. Configure `ENABLE_DEMO_LOGIN=true` solo si desea permitir los accesos rápidos sin contraseña durante la presentación; de lo contrario quedan desactivados en producción.
-3. Aplique los cambios de PostgreSQL al repositorio y espere el despliegue automático. El comando de build ya ejecuta `prisma generate`.
-4. Inicialice el esquema y cargue los datos de demostración una sola vez desde un entorno con conexión a esa base:
-
-   ```bash
-   npx prisma db push
-   npm run db:seed
-   ```
-
-   El seed elimina los registros existentes antes de volver a insertar el conjunto demo. Úselo únicamente en la base nueva destinada a la demostración. Las contraseñas demo están publicadas en el README; no almacene datos reales en esta instancia.
+1. En el proyecto de Vercel, conecte PostgreSQL desde el Marketplace. La integración Prisma Postgres configura `DATABASE_URL` para tareas de esquema y `DATABASE_URL_POOLED` para consultas de la aplicación.
+2. En **Settings → Environment Variables**, configure `AUTH_SECRET` con un valor aleatorio de al menos 32 caracteres. Configure `ENABLE_DEMO_LOGIN=true` solo si necesita accesos rápidos sin contraseña durante la presentación; de lo contrario quedan desactivados en producción.
+3. Aplique los cambios al repositorio y espere el despliegue automático. El script `vercel-build` sincroniza el esquema, carga los datos demo solo si la base aún no tiene tenants y ejecuta el build. Las siguientes compilaciones preservan los datos existentes.
+4. El comando manual `npm run db:seed` borra registros al volver a ejecutarse; no lo uses contra una base que ya tenga datos. Las contraseñas demo están publicadas en el README, así que no almacenes datos reales en esta instancia.

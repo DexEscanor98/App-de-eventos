@@ -6,6 +6,12 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Starting database seed for Eventia SaaS...');
 
+  const existingTenantCount = await prisma.tenant.count();
+  if (existingTenantCount > 0) {
+    console.log('Database already has tenant data; skipping demo seed to preserve it.');
+    return;
+  }
+
   // Clean old data in safe sequence
   await prisma.auditLog.deleteMany();
   await prisma.expense.deleteMany();
