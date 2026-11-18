@@ -1,0 +1,520 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Tenant {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique
+  logoUrl     String?
+  plan        String   @default("PRO") // STARTER, PRO, BUSINESS
+  status      String   @default("ACTIVE") // ACTIVE, INACTIVE, SUSPENDED
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  settings             BusinessSettings?
+  users                User[]
+  customers            Customer[]
+  venues               Venue[]
+  eventTypes           EventType[]
+  menus                Menu[]
+  packages             Package[]
+  entertainments       Entertainment[]
+  additionalServices   AdditionalService[]
+  quotes               Quote[]
+  reservations         Reservation[]
+  events               Event[]
+  payments             Payment[]
+  contracts            Contract[]
+  cancellationPolicies CancellationPolicy[]
+  suppliers            Supplier[]
+  employees            Employee[]
+  inventoryItems       InventoryItem[]
+  expenses             Expense[]
+  auditLogs            AuditLog[]
+}
+
+model BusinessSettings {
+  id                String   @id @default(uuid())
+  tenantId          String   @unique
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  commercialName    String
+  slogan            String?
+  address           String?
+  phone             String?
+  whatsapp          String?
+  email             String?
+  website           String?
+  primaryColor      String   @default("#4f46e5")
+  currency          String   @default("MXN")
+  timezone          String   @default("America/Mexico_City")
+  taxRate           Float    @default(0.16) // 16% IVA
+  depositPercentage Float    @default(30.0) // 30% anticipo requerido
+  defaultHours      Int      @default(5)
+  extraHourPrice    Float    @default(1500.0)
+  policiesText      String?
+  updatedAt         DateTime @updatedAt
+}
+
+model User {
+  id           String    @id @default(uuid())
+  tenantId     String?
+  tenant       Tenant?   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  email        String    @unique
+  passwordHash String
+  name         String
+  role         String    @default("ADMIN") // SUPER_ADMIN, ADMIN, SALES, CASHIER, COORDINATOR, EMPLOYEE
+  avatarUrl    String?
+  phone        String?
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+
+  quotesCreated    Quote[]       @relation("QuoteCreator")
+  reservationsDone Reservation[] @relation("ReservationCreator")
+  paymentsReceived Payment[]     @relation("PaymentReceiver")
+  auditLogs        AuditLog[]
+}
+
+model Customer {
+  id               String    @id @default(uuid())
+  tenantId         String
+  tenant           Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  userId           String?
+  name             String
+  email            String?
+  phone            String
+  whatsapp         String?
+  address          String?
+  avatarUrl        String?
+  whatsappVerified Boolean   @default(false)
+  emailVerified    Boolean   @default(false)
+  notes            String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
+
+  quotes       Quote[]
+  reservations Reservation[]
+  events       Event[]
+  payments     Payment[]
+  contracts    Contract[]
+}
+
+model Venue {
+  id          String   @id @default(uuid())
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  capacity    Int      @default(200)
+  basePrice   Float    @default(10000.0)
+  location    String?
+  imageUrl    String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  quotes       Quote[]
+  reservations Reservation[]
+  events       Event[]
+}
+
+model EventType {
+  id          String   @id @default(uuid())
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  color       String   @default("#6366f1")
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  quotes       Quote[]
+  reservations Reservation[]
+  events       Event[]
+}
+
+model Menu {
+  id              String   @id @default(uuid())
+  tenantId        String
+  tenant          Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name            String
+  description     String?
+  adultPrice      Float    @default(300.0)
+  childPrice      Float    @default(180.0)
+  maxChildAge     Int      @default(10)
+  freeUnderAge    Int      @default(3)
+  minGuests       Int      @default(50)
+  includedDishes  String?  // JSON string or comma separated
+  includedDrinks  String?  // JSON string or comma separated
+  imageUrl        String?
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  quotes Quote[]
+}
+
+model Package {
+  id               String   @id @default(uuid())
+  tenantId         String
+  tenant           Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name             String
+  description      String?
+  basePrice        Float    @default(25000.0)
+  includedGuests   Int      @default(100)
+  includedHours    Int      @default(5)
+  includedServices String?  // JSON string of included items
+  extraGuestPrice  Float    @default(250.0)
+  extraHourPrice   Float    @default(1500.0)
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  quotes Quote[]
+}
+
+model Entertainment {
+  id             String   @id @default(uuid())
+  tenantId       String
+  tenant         Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name           String
+  description    String?
+  price          Float    @default(5000.0)
+  durationHours  Int      @default(4)
+  extraHourPrice Float    @default(1000.0)
+  providerName   String?
+  imageUrl       String?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model AdditionalService {
+  id          String   @id @default(uuid())
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  price       Float    @default(1000.0)
+  billingType String   @default("FIXED") // FIXED, PER_PERSON, PER_HOUR, PER_UNIT, PER_TABLE, PER_PACKAGE
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Quote {
+  id                 String    @id @default(uuid())
+  folio              String
+  tenantId           String
+  tenant             Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customerId         String
+  customer           Customer  @relation(fields: [customerId], references: [id])
+  venueId            String
+  venue              Venue     @relation(fields: [venueId], references: [id])
+  packageId          String?
+  package            Package?  @relation(fields: [packageId], references: [id])
+  menuId             String?
+  menu               Menu?     @relation(fields: [menuId], references: [id])
+  eventTypeId        String
+  eventType          EventType @relation(fields: [eventTypeId], references: [id])
+  
+  eventDate          DateTime
+  startTime          String    // e.g. "14:00"
+  endTime            String    // e.g. "19:00"
+  durationHours      Int       @default(5)
+  extraHours         Int       @default(0)
+  adults             Int       @default(100)
+  children           Int       @default(0)
+
+  // Presupuesto estimado del cliente y personalización
+  estimatedBudget    Float     @default(0)
+  customItemsJson    String?   // JSON con notas o conceptos personalizados del cliente
+
+  // Desglose de precios
+  baseVenuePrice     Float     @default(0)
+  packagePrice       Float     @default(0)
+  menuPrice          Float     @default(0)
+  entertainmentTotal Float     @default(0)
+  servicesTotal      Float     @default(0)
+  extraHoursTotal    Float     @default(0)
+  subtotal           Float     @default(0)
+  discountType       String?   // PERCENTAGE, FIXED
+  discountValue      Float     @default(0)
+  discountTotal      Float     @default(0)
+  taxRate            Float     @default(0)
+  taxTotal           Float     @default(0)
+  total              Float     @default(0)
+
+  status             String    @default("DRAFT") // DRAFT, SENT, ACCEPTED, REJECTED, EXPIRED, CONVERTED
+  notes              String?
+  validUntil         DateTime?
+  createdById        String?
+  createdBy          User?     @relation("QuoteCreator", fields: [createdById], references: [id])
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  deletedAt          DateTime?
+
+  items        QuoteItem[]
+  reservations Reservation[]
+
+  @@unique([tenantId, folio])
+}
+
+model QuoteItem {
+  id          String   @id @default(uuid())
+  quoteId     String
+  quote       Quote    @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  type        String   // PACKAGE, MENU, ENTERTAINMENT, SERVICE, EXTRA_HOUR, EXTRA_PERSON, VENUE, CUSTOM
+  referenceId String?
+  name        String
+  description String?
+  quantity    Float    @default(1)
+  unitPrice   Float    @default(0)
+  total       Float    @default(0)
+}
+
+model Reservation {
+  id           String    @id @default(uuid())
+  folio        String
+  tenantId     String
+  tenant       Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  quoteId      String?
+  quote        Quote?    @relation(fields: [quoteId], references: [id])
+  customerId   String
+  customer     Customer  @relation(fields: [customerId], references: [id])
+  venueId      String
+  venue        Venue     @relation(fields: [venueId], references: [id])
+  eventTypeId  String
+  eventType    EventType @relation(fields: [eventTypeId], references: [id])
+  
+  eventDate    DateTime
+  startTime    String    // e.g. "14:00"
+  endTime      String    // e.g. "21:00"
+  adults       Int       @default(100)
+  children     Int       @default(0)
+
+  totalAmount  Float     @default(0)
+  paidAmount   Float     @default(0)
+  balanceAmount Float    @default(0)
+
+  status       String    @default("CONFIRMED") // PENDING, HELD, CONFIRMED, COMPLETED, CANCELLED
+  notes        String?
+  createdById  String?
+  createdBy    User?     @relation("ReservationCreator", fields: [createdById], references: [id])
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  events       Event[]
+  payments     Payment[]
+  contracts    Contract[]
+
+  @@unique([tenantId, folio])
+}
+
+model Event {
+  id            String       @id @default(uuid())
+  folio         String
+  tenantId      String
+  tenant        Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  reservationId String?
+  reservation   Reservation? @relation(fields: [reservationId], references: [id])
+  customerId    String
+  customer      Customer     @relation(fields: [customerId], references: [id])
+  venueId       String
+  venue         Venue        @relation(fields: [venueId], references: [id])
+  eventTypeId   String
+  eventType     EventType    @relation(fields: [eventTypeId], references: [id])
+  
+  name          String
+  eventDate     DateTime
+  startTime     String
+  endTime       String
+  adults        Int          @default(100)
+  children      Int          @default(0)
+
+  totalAmount   Float        @default(0)
+  paidAmount    Float        @default(0)
+  balanceAmount Float        @default(0)
+
+  status        String       @default("SCHEDULED") // SCHEDULED, IN_PROGRESS, COMPLETED, CANCELLED
+  notes         String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  deletedAt     DateTime?
+
+  items         EventItem[]
+  payments      Payment[]
+  contracts     Contract[]
+  staff         EventStaff[]
+  expenses      Expense[]
+
+  @@unique([tenantId, folio])
+}
+
+model EventItem {
+  id          String  @id @default(uuid())
+  eventId     String
+  event       Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  type        String  // PACKAGE, MENU, ENTERTAINMENT, SERVICE, EXTRA_HOUR, CUSTOM
+  name        String
+  quantity    Float   @default(1)
+  unitPrice   Float   @default(0)
+  total       Float   @default(0)
+}
+
+model Payment {
+  id            String       @id @default(uuid())
+  folio         String
+  tenantId      String
+  tenant        Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  reservationId String?
+  reservation   Reservation? @relation(fields: [reservationId], references: [id])
+  eventId       String?
+  event         Event?       @relation(fields: [eventId], references: [id])
+  customerId    String
+  customer      Customer     @relation(fields: [customerId], references: [id])
+
+  amount        Float        @default(0)
+  paymentType   String       @default("PARTIAL") // DEPOSIT, PARTIAL, SETTLEMENT, REFUND
+  paymentMethod String       @default("TRANSFER") // CASH, TRANSFER, CARD, BANK_DEPOSIT, OTHER
+  reference     String?
+  receiptUrl    String?
+  notes         String?
+  receivedById  String?
+  receivedBy    User?        @relation("PaymentReceiver", fields: [receivedById], references: [id])
+  paymentDate   DateTime     @default(now())
+  createdAt     DateTime     @default(now())
+  deletedAt     DateTime?
+
+  @@unique([tenantId, folio])
+}
+
+model Contract {
+  id            String       @id @default(uuid())
+  folio         String
+  tenantId      String
+  tenant        Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  reservationId String?
+  reservation   Reservation? @relation(fields: [reservationId], references: [id])
+  eventId       String?
+  event         Event?       @relation(fields: [eventId], references: [id])
+  customerId    String
+  customer      Customer     @relation(fields: [customerId], references: [id])
+
+  termsSnapshot String?      // JSON with terms, pricing breakdown, cancellation rules
+  content       String?      // Formatted text of contract
+  signedAt      DateTime?
+  status        String       @default("ISSUED") // DRAFT, ISSUED, SIGNED, VOID
+  createdAt     DateTime     @default(now())
+  deletedAt     DateTime?
+
+  @@unique([tenantId, folio])
+}
+
+model CancellationPolicy {
+  id               String  @id @default(uuid())
+  tenantId         String
+  tenant           Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  daysBeforeEvent  Int
+  refundPercentage Float
+  description      String
+}
+
+model Supplier {
+  id              String   @id @default(uuid())
+  tenantId        String
+  tenant          Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name            String
+  company         String?
+  phone           String
+  whatsapp        String?
+  serviceCategory String
+  costNotes       String?
+  notes           String?
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  expenses Expense[]
+}
+
+model Employee {
+  id           String   @id @default(uuid())
+  tenantId     String
+  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name         String
+  roleCategory String   @default("WAITER") // COORDINATOR, CAPTAIN, WAITER, COOK, CLEANING, SECURITY, DJ, DECORATOR, OTHER
+  phone        String
+  email        String?
+  hourlyWage   Float    @default(80.0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  assignments EventStaff[]
+}
+
+model EventStaff {
+  id           String   @id @default(uuid())
+  eventId      String
+  event        Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  employeeId   String
+  employee     Employee @relation(fields: [employeeId], references: [id])
+  assignedRole String
+  hours        Float    @default(5.0)
+  cost         Float    @default(400.0)
+  notes        String?
+}
+
+model InventoryItem {
+  id                String   @id @default(uuid())
+  tenantId          String
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name              String
+  category          String   // MOBILIARIO, MANTELERIA, VAJILLA, CRISTALERIA, AUDIO_LUCES, DECORACION, INFLABLES
+  totalQuantity     Int      @default(0)
+  availableQuantity Int      @default(0)
+  inUseQuantity     Int      @default(0)
+  damagedQuantity   Int      @default(0)
+  missingQuantity   Int      @default(0)
+  unit              String   @default("pieza")
+  unitCost          Float    @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model Expense {
+  id          String    @id @default(uuid())
+  tenantId    String
+  tenant      Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  eventId     String?
+  event       Event?    @relation(fields: [eventId], references: [id])
+  supplierId  String?
+  supplier    Supplier? @relation(fields: [supplierId], references: [id])
+  category    String    // COMIDA, BEBIDAS, MUSICA, DECORACION, PERSONAL, LIMPIEZA, OTRO
+  description String
+  amount      Float     @default(0)
+  date        DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  action    String   // CREATE, UPDATE, DELETE, PAYMENT, REFUND, CANCELLATION, DISCOUNT, PRICE_CHANGE, STATUS_CHANGE
+  entity    String   // Quote, Reservation, Payment, Event, Customer, etc.
+  entityId  String
+  metadata  String?  // JSON string
+  createdAt DateTime @default(now())
+}
