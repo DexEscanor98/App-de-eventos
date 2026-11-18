@@ -71,7 +71,7 @@ export function CustomerProfileClient({
     setLocalQuotes(getCustomerLocalQuotes(customer.id));
   }, [customer.id]);
 
-  // Combinar cotizaciones de SQLite con cualquier respaldo en LocalStorage sin duplicar
+  // Combinar cotizaciones del servidor con cualquier respaldo en LocalStorage sin duplicar
   const dbQuoteIds = new Set((customer.quotes || []).map((q: any) => q.id));
   const extraLocalQuotes = localQuotes.filter((lq) => !dbQuoteIds.has(lq.id));
 

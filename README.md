@@ -38,7 +38,7 @@
 
 - **Frontend & Framework**: Next.js 15+ App Router, React 19, TypeScript
 - **Estilos & Diseño**: Tailwind CSS, Lucide Icons, Shadcn UI patterns
-- **Base de Datos & ORM**: Prisma ORM, SQLite (desarrollo local zero-setup) / PostgreSQL (soporte Docker)
+- **Base de Datos & ORM**: Prisma ORM con PostgreSQL (Docker local o integración PostgreSQL del Vercel Marketplace)
 - **Gráficas & Fechas**: Recharts, date-fns
 - **Validaciones & Seguridad**: Zod, bcryptjs, Cookies HTTPOnly seguras
 - **Testing**: Vitest (7 pruebas unitarias aprobadas al 100%)
@@ -63,8 +63,8 @@ Para facilitar la demostración ejecutiva, la pantalla de inicio de sesión (`/l
 
 ### 1. Clonar y verificar entorno
 ```bash
-# Variables de entorno ya configuradas en .env
-cat .env
+cp .env.example .env
+docker compose up -d
 ```
 
 ### 2. Instalar dependencias
@@ -88,6 +88,8 @@ npm test
 npm run dev
 ```
 Abra en su navegador: **`http://localhost:3000`**
+
+Para Vercel, conecte PostgreSQL desde Marketplace, configure `AUTH_SECRET` y siga la guía de despliegue en [`docs/11-INSTALACION.md`](docs/11-INSTALACION.md).
 
 ---
 

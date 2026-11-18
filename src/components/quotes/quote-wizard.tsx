@@ -352,7 +352,7 @@ export function QuoteWizard({
   };
 
   /**
-   * Guarda la cotización tanto en SQLite (/api/quotes) como en la Base Local del navegador
+   * Guarda la cotización en la base del servidor (/api/quotes) y en la base local del navegador
    * y en el apartado "Cotizaciones" del perfil del cliente.
    */
   const persistQuoteInDatabaseAndProfile = async () => {

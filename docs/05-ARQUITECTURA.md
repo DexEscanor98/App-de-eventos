@@ -1,7 +1,7 @@
 # 05. ARQUITECTURA DEL SISTEMA
 
 ## Visión Arquitectónica General
-EVENTIA está construido sobre una arquitectura moderna basada en Next.js App Router (React 19 + TypeScript), diseñada con separación estricta de responsabilidades entre la capa de presentación (UI), lógica de dominio financiero (Domain/Pricing Engine), servicios de aplicación (Services/Availability) y capa de persistencia de datos (Prisma ORM con PostgreSQL / SQLite).
+EVENTIA está construido sobre una arquitectura moderna basada en Next.js App Router (React 19 + TypeScript), diseñada con separación estricta de responsabilidades entre la capa de presentación (UI), lógica de dominio financiero (Domain/Pricing Engine), servicios de aplicación (Services/Availability) y capa de persistencia de datos (Prisma ORM con PostgreSQL).
 
 ```mermaid
 flowchart TD
@@ -23,7 +23,7 @@ flowchart TD
     subgraph Datos["Capa de Persistencia & Aislamiento (Database)"]
         PrismaORM["Prisma ORM (Client Singleton)"]
         TenantFilter["Filtro Obligatorio tenantId (Multi-Tenancy)"]
-        Database[("Base de Datos Relacional PostgreSQL / SQLite")]
+        Database[("Base de Datos Relacional PostgreSQL")]
     end
 
     Browser --> AppShell

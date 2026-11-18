@@ -1,5 +1,5 @@
 // ============================================================================
-// EVENTIA — Motor de Base de Datos Local (Indexed LocalStorage + SQLite Sync)
+// EVENTIA — Almacenamiento auxiliar local del navegador (Indexed LocalStorage)
 // Almacena presupuestos, cotizaciones personalizadas por cliente y pagos
 // ============================================================================
 

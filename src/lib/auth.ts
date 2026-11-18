@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers';
 import bcrypt from 'bcryptjs';
+import { createHmac, timingSafeEqual } from 'node:crypto';
 import { prisma } from './prisma';
 
 export interface SessionUser {
@@ -17,6 +18,18 @@ export interface SessionUser {
 
 const SESSION_COOKIE_NAME = 'eventia_session_token';
 
+function getSessionSecret() {
+  const secret = process.env.AUTH_SECRET;
+  if (!secret || secret.length < 32) {
+    throw new Error('AUTH_SECRET debe configurarse con al menos 32 caracteres.');
+  }
+  return secret;
+}
+
+function signSession(payload: string) {
+  return createHmac('sha256', getSessionSecret()).update(payload).digest('base64url');
+}
+
 /**
  * Obtiene el usuario de la sesión actual leyendo las cookies HTTP
  */
@@ -29,10 +42,18 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
       return null;
     }
 
-    const payload = JSON.parse(Buffer.from(sessionCookie.value, 'base64').toString('utf-8'));
+    const [encodedPayload, signature, extra] = sessionCookie.value.split('.');
+    if (!encodedPayload || !signature || extra) return null;
+
+    const expectedSignature = signSession(encodedPayload);
+    const received = Buffer.from(signature);
+    const expected = Buffer.from(expectedSignature);
+    if (received.length !== expected.length || !timingSafeEqual(received, expected)) return null;
+
+    const payload = JSON.parse(Buffer.from(encodedPayload, 'base64url').toString('utf-8'));
     if (!payload?.id) return null;
 
-    // Verificar que el usuario continúe activo en BD y cargar su avatarUrl desde SQLite
+    // Verificar que el usuario continúe activo en la base de datos y cargar su avatarUrl.
     const dbUser = await prisma.user.findUnique({
       where: { id: payload.id },
       include: {
@@ -134,7 +155,8 @@ export async function setSessionCookie(user: SessionUser) {
     tenantName: user.tenantName,
     tenantSlug: user.tenantSlug,
   };
-  const token = Buffer.from(JSON.stringify(compactPayload)).toString('base64');
+  const encodedPayload = Buffer.from(JSON.stringify(compactPayload)).toString('base64url');
+  const token = `${encodedPayload}.${signSession(encodedPayload)}`;
 
   cookieStore.set(SESSION_COOKIE_NAME, token, {
     httpOnly: true,

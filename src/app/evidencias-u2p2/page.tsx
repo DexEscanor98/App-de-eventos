@@ -116,7 +116,7 @@ export default function EvidenciasU2P2Page() {
               </p>
               <p><strong className="text-slate-300">Número de Equipo:</strong> Equipo X (Célula Ágil Senior Full-Stack &amp; Cloud)</p>
               <p><strong className="text-slate-300">Sprints Completados:</strong> Sprint 1 (Arquitectura &amp; Auth Cloud), Sprint 2 (Clientes, Catálogos y Motor de Cotización), Sprint 3 (Agenda, Traslapes, Reservaciones y Pagos Mercado Pago) y Sprint 4 (Operación Total, Contratos, Personal, Inventario, Gastos, Reportes y PWA Final)</p>
-              <p><strong className="text-slate-300">Base de Datos en la Nube:</strong> Supabase Cloud PostgreSQL (<code className="text-sky-300">aws-0-us-west-1.pooler.supabase.com:6543</code>)</p>
+              <p><strong className="text-slate-300">Base de Datos en la Nube:</strong> PostgreSQL administrado, configurado mediante <code className="text-sky-300">DATABASE_URL</code></p>
               <p><strong className="text-slate-300">Fecha de Entrega:</strong> 26 de Octubre de 2026</p>
             </div>
           </div>
@@ -307,10 +307,10 @@ export default function EvidenciasU2P2Page() {
           {/* A.1 AUTENTICACIÓN REMOTA */}
           <div className="space-y-4">
             <h3 className="text-lg font-black text-slate-900">
-              A.1 Autenticación Remota Multi-Tenant en la Nube (Supabase PostgreSQL + OTP WhatsApp)
+              A.1 Autenticación Multi-Tenant en la Nube (PostgreSQL + OTP WhatsApp)
             </h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              El módulo de autenticación remota conecta la aplicación con el clúster en la nube de <strong>Supabase PostgreSQL</strong> (<code>aws-0-us-west-1.pooler.supabase.com:6543</code>). Soporta inicio de sesión con contraseñas cifradas con <code>bcrypt</code>, registro de nuevos salones de eventos (creando su propio <code>Tenant</code> aislado en la nube), registro de clientes con verificación de código OTP de WhatsApp real y captura de foto de perfil mediante cámara en vivo (Selfie WebRTC) o galería.
+              El módulo de autenticación remota conecta la aplicación con PostgreSQL mediante <code>DATABASE_URL</code>. Soporta inicio de sesión con contraseñas cifradas con <code>bcrypt</code>, registro de nuevos salones de eventos (creando su propio <code>Tenant</code> aislado en la nube), registro de clientes con verificación de código OTP de WhatsApp real y captura de foto de perfil mediante cámara en vivo (Selfie WebRTC) o galería.
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -338,8 +338,7 @@ export default function EvidenciasU2P2Page() {
             </div>
 
             <div className="rounded-2xl bg-slate-950 text-slate-100 p-4 text-[11px] font-mono overflow-x-auto border border-slate-800">
-              <pre className="leading-relaxed text-sky-200">{`// Conexión a Supabase Cloud PostgreSQL (.env) y Autenticación Remota (src/lib/auth.ts)
-// DATABASE_URL="postgresql://postgres.eventia_prod:SupaCloud2026!@aws-0-us-west-1.pooler.supabase.com:6543/postgres?pgbouncer=true"
+              <pre className="leading-relaxed text-sky-200">{`// Conexión PostgreSQL configurada mediante DATABASE_URL en el entorno
 
 export async function authenticateUser(email: string, passwordPlain: string): Promise<SessionUser | null> {
   const user = await prisma.user.findUnique({ where: { email: email.toLowerCase().trim() }, include: { tenant: true } });
@@ -697,13 +696,13 @@ export async function authenticateUser(email: string, passwordPlain: string): Pr
                 Enlace Oficial al Repositorio de Código Fuente y Base de Datos Cloud
               </span>
               <h3 className="text-lg font-black">
-                GitHub Repository &amp; Clúster Supabase Cloud PostgreSQL
+                Repositorio y PostgreSQL administrado
               </h3>
               <p className="text-xs text-slate-300 font-mono">
                 Repositorio Git: https://github.com/equipo-eventia/eventia-pro-saas-cloud.git
               </p>
               <p className="text-xs text-emerald-400 font-mono">
-                Supabase Connection Pooler: postgresql://postgres.eventia_prod@aws-0-us-west-1.pooler.supabase.com:6543/postgres
+                PostgreSQL: configurado mediante variables de entorno
               </p>
             </div>
             <div className="px-4 py-2 rounded-2xl bg-emerald-500/20 border border-emerald-400/30 text-xs font-extrabold text-emerald-300">

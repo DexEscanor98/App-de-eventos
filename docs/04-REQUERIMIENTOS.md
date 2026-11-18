@@ -25,7 +25,7 @@
 
 - **RNF-01 (Rendimiento)**: Tiempos de respuesta de backend menores a 200 ms para consultas operativas estándar.
 - **RNF-02 (Seguridad)**: Almacenamiento de contraseñas con salado criptográfico bcrypt (10 rondas), protección contra SQL Injection mediante Prisma ORM y cookies HTTPOnly seguras.
-- **RNF-03 (Disponibilidad y Ejecución Local)**: Capacidad de funcionar autónomamente de forma local sin requerir servicios externos caídos, con fallback SQLite y soporte PostgreSQL.
+- **RNF-03 (Disponibilidad y Ejecución Local)**: Capacidad de ejecutarse localmente con PostgreSQL en Docker y en producción con PostgreSQL administrado.
 - **RNF-04 (Diseño Visual Premium)**: Interfaz de usuario profesional basada en Tailwind CSS y variables de color sobrias tipo software corporativo premium.
 - **RNF-05 (Compatibilidad y Responsividad)**: Interfaz adaptable a pantallas de escritorio, laptops, tablets y teléfonos inteligentes.
 - **RNF-06 (Integridad Financiera)**: Manejo de importes monetarios redondeados con precisión a dos decimales, previniendo errores de punto flotante.

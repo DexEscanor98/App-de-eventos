@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { loginAsDemoUser } from '@/lib/auth';
 
+function demoLoginIsEnabled() {
+  return process.env.NODE_ENV !== 'production' || process.env.ENABLE_DEMO_LOGIN === 'true';
+}
+
 export async function GET(req: NextRequest) {
+  if (!demoLoginIsEnabled()) return NextResponse.json({ error: 'Acceso demo deshabilitado' }, { status: 404 });
   const { searchParams } = new URL(req.url);
   const email = searchParams.get('email') || 'admin@salonimperial.demo';
   const next = searchParams.get('next') || '/dashboard';
@@ -15,6 +20,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  if (!demoLoginIsEnabled()) return NextResponse.json({ error: 'Acceso demo deshabilitado' }, { status: 404 });
   try {
     const { email } = await req.json();
     if (!email) {
