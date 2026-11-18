@@ -22,12 +22,12 @@ interface TopbarProps {
 }
 
 const DEMO_USERS = [
-  { role: 'CLIENT', name: 'Juan Pérez Hernández', email: 'cliente@salonimperial.demo', label: '👤 Cliente VIP (Cotizar & Pagar)' },
-  { role: 'ADMIN', name: 'Lic. Roberto Valdés', email: 'admin@salonimperial.demo', label: 'Admin (Total)' },
-  { role: 'SALES', name: 'Mariana Silva', email: 'ventas@salonimperial.demo', label: 'Ventas (Cotizaciones)' },
-  { role: 'CASHIER', name: 'Carlos Morales', email: 'caja@salonimperial.demo', label: 'Caja (Pagos)' },
-  { role: 'COORDINATOR', name: 'Valeria Méndez', email: 'coordinador@salonimperial.demo', label: 'Coordinador (Operación)' },
-  { role: 'SUPER_ADMIN', name: 'Super Admin Plataforma', email: 'superadmin@eventia.demo', label: 'Super Admin (SaaS)' },
+  { role: 'CLIENT', name: 'Juan Pérez Hernández', email: 'cliente@salonimperial.demo', password: 'Cliente123!', label: '👤 Cliente VIP (Cotizar & Pagar)' },
+  { role: 'ADMIN', name: 'Lic. Roberto Valdés', email: 'admin@salonimperial.demo', password: 'Admin123!', label: 'Admin (Total)' },
+  { role: 'SALES', name: 'Mariana Silva', email: 'ventas@salonimperial.demo', password: 'Ventas123!', label: 'Ventas (Cotizaciones)' },
+  { role: 'CASHIER', name: 'Carlos Morales', email: 'caja@salonimperial.demo', password: 'Caja123!', label: 'Caja (Pagos)' },
+  { role: 'COORDINATOR', name: 'Valeria Méndez', email: 'coordinador@salonimperial.demo', password: 'Coord123!', label: 'Coordinador (Operación)' },
+  { role: 'SUPER_ADMIN', name: 'Super Admin Plataforma', email: 'superadmin@eventia.demo', password: 'Super123!', label: 'Super Admin (SaaS)' },
 ];
 
 export function Topbar({ user }: TopbarProps) {
@@ -37,13 +37,13 @@ export function Topbar({ user }: TopbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [switching, setSwitching] = useState(false);
 
-  const handleFastSwitch = async (email: string) => {
+  const handleFastSwitch = async (email: string, password: string) => {
     setSwitching(true);
     try {
-      const res = await fetch('/api/auth/fast-login', {
+      const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, password }),
       });
       if (res.ok) {
         const data = await res.json();
@@ -156,7 +156,7 @@ export function Topbar({ user }: TopbarProps) {
                         <button
                           key={demo.email}
                           disabled={switching || isCurrent}
-                          onClick={() => handleFastSwitch(demo.email)}
+                          onClick={() => handleFastSwitch(demo.email, demo.password)}
                           className={`w-full text-left px-3 py-2 rounded-2xl text-xs flex items-center justify-between transition-all ${
                             isCurrent
                               ? 'bg-indigo-600 text-white font-semibold cursor-default shadow-sm'

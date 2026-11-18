@@ -107,15 +107,15 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const res = await fetch('/api/auth/fast-login', {
+      const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: userEmail }),
+        body: JSON.stringify({ email: userEmail, password: userPass }),
       });
 
       const data = await res.json();
       if (!res.ok) {
-        throw new Error('Error al ingresar con perfil demo');
+        throw new Error(data.error || 'Error al ingresar con perfil demo');
       }
 
       router.push(data.redirectUrl || '/dashboard');
